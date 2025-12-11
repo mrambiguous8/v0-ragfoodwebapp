@@ -1,50 +1,251 @@
-# Food RAG Web App
+# 🍳 Food RAG Web Application
 
-A production-ready **Retrieval-Augmented Generation (RAG)** application that combines semantic vector search with large language models to provide intelligent cooking and recipe assistance.
+> A full-stack Retrieval-Augmented Generation (RAG) application showcasing modern AI-powered food discovery and recipe assistance.
 
-## Features
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://v0-food-rag-web-app.vercel.app)
+[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.app/chat/giVUaccSDfd)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
 
-- **AI-Powered Chat Interface** - Natural language queries about recipes, ingredients, and cooking techniques
-- **Vector Search** - Semantic search using Upstash Vector DB for relevant context retrieval
-- **Multiple LLM Models** - Choose between Llama 3.1 8B (fast) or 70B (powerful) via Groq
-- **Smart Caching** - 1-hour response cache to reduce API costs and improve performance
-- **Rate Limiting** - IP-based sliding window rate limiter (10 requests/min) with automatic blocking
-- **Analytics Dashboard** - Track queries, performance metrics, and usage patterns
-- **Input Validation** - XSS protection and prompt injection prevention
-- **Mobile Optimized** - Touch-friendly interface with responsive design
-- **Dark Mode** - System-aware theme switching
+---
 
-## Tech Stack
+## 📋 Project Overview
 
-- **Framework**: Next.js 16 (App Router) with React 19.2
-- **AI/ML**: Groq SDK with Llama 3.1 models
-- **Vector Database**: Upstash Vector
-- **Caching**: Upstash Redis
-- **Styling**: Tailwind CSS v4 + shadcn/ui
-- **Analytics**: Vercel Analytics + custom tracking
-- **TypeScript**: Fully typed codebase
+This project demonstrates a **production-ready RAG system** that combines:
+- **Semantic Vector Search** for intelligent food/recipe discovery
+- **Large Language Model (LLM)** responses for natural conversation
+- **Real-time Analytics** for monitoring system performance
+- **Modern Web Interface** with responsive design
+- **Smart Caching** - 1-hour response cache to reduce API costs (~60-80% reduction)
+- **Rate Limiting** - IP-based sliding window (10 requests/min) with automatic blocking
+- **Security Features** - XSS protection and prompt injection prevention
 
-## Architecture
+### 🎯 What It Does
 
-\`\`\`
-User Query → Input Validation → Rate Limit Check → Cache Check
-                                                       ↓
-                                                   Cache Miss
-                                                       ↓
-                                    Vector Search (Top 3 Results)
-                                                       ↓
-                                    LLM Generation (with context)
-                                                       ↓
-                                          Cache + Analytics Tracking
-                                                       ↓
-                                                   Response
-\`\`\`
+Ask natural language questions about food, recipes, and cooking techniques. The system:
+1. Converts your query into vector embeddings
+2. Searches a knowledge base of 100 diverse food items
+3. Retrieves the most relevant matches
+4. Generates a helpful, context-aware response using LLM
 
-## Environment Variables
+**Example Queries:**
+- *"Give me a 10-minute breakfast recipe"*
+- *"What can I cook with chicken and spinach?"*
+- *"Suggest a vegetarian dinner under 500 calories"*
+- *"Best grilling techniques for meat"*
 
-Required environment variables (automatically configured if using Vercel integrations):
+---
 
-\`\`\`env
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              USER INTERFACE                                  │
+│                        (Next.js 16 + React 19.2)                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            RAG PIPELINE                                     │
+│  ┌──────────────┐    ┌──────────────────┐     ┌─────────────────────────┐   │
+│  │   1. Query   │─▶ │ 2. Vector Search │───▶│ 3. Context Retrieval    │   │
+│  │   Input      │    │  (Upstash Vector)│     │    (Top-K Results)      │   │
+│  └──────────────┘    └──────────────────┘     └─────────────────────────┘   │
+│                                                           │                 │
+│                                                           ▼                 │
+│                             ┌─────────────────────────────────────────────┐ │
+│                             │ 4. LLM Generation (Groq - Llama 3.1/3.3)    │ │
+│                             └─────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          ANALYTICS & MONITORING                              │
+│                            (Upstash Redis)                                   │
+│         Query Tracking │ Performance Metrics │ Error Logging                │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend** | Next.js 16, React 19.2, Tailwind CSS v4 | Modern web interface |
+| **UI Components** | shadcn/ui | Accessible, customizable components |
+| **Vector Database** | Upstash Vector | Semantic search with embeddings |
+| **LLM Provider** | Groq (Llama 3.1 8B / 70B) | Fast AI response generation |
+| **Caching** | Upstash Redis | Response caching (1-hour TTL) & rate limiting |
+| **Analytics** | Vercel Analytics + Custom | Query tracking & performance monitoring |
+| **Deployment** | Vercel | Serverless hosting with edge functions |
+| **Development** | v0.dev | AI-assisted UI development |
+| **Language** | TypeScript | Fully typed codebase |
+
+---
+
+## 🚀 Live Demo
+
+### 🔗 **[Try the Live Application →](https://v0-ragfoodwebapp-uw.vercel.app/)**
+
+### Usage Examples
+
+| Query Type | Example |
+|------------|---------|
+| **Quick Meals** | "Give me a 10-minute breakfast recipe" |
+| **Ingredient-Based** | "What can I cook with chicken and spinach?" |
+| **Dietary Preferences** | "Suggest a vegetarian dinner under 500 calories" |
+| **Cooking Techniques** | "Best grilling techniques for meat" |
+
+---
+
+## 📅 Development Journey
+
+This project evolved through a 3-week development process:
+
+### Week 2: Local Development
+- Set up Python RAG pipeline with local vector store
+- Implemented basic semantic search functionality
+- Tested with sample food data
+
+### Week 3: Cloud Migration
+- Migrated vector database to **Upstash Vector**
+- Integrated **Groq LLM API** for response generation
+- Added cloud-based embedding generation
+
+### Week 4: Web Application
+- Built full-stack Next.js application
+- Designed modern chat interface with **v0.dev**
+- Added analytics dashboard with **Upstash Redis**
+- Deployed to production on **Vercel**
+
+---
+
+## ✨ Features Showcase
+
+### 💬 Intelligent Chat Interface
+- Natural language food queries
+- Real-time typing indicators
+- Model selection (Llama 3.1 8B fast / 70B powerful)
+- Suggested questions for quick start
+- Auto-trim chat history to last 50 messages
+- Abort controllers for proper cleanup of in-flight requests
+
+### 📊 RAG Source Display
+- Collapsible source cards showing retrieved documents
+- Relevance percentage badges (color-coded)
+- Clickable category/origin tags for related searches
+- Expandable modal for full document details
+
+### 📈 Analytics Dashboard
+- Total query count & success rate
+- Response time metrics (search + generation)
+- Daily query trends (7-day visualization)
+- Model usage breakdown
+- Error breakdown by type
+- Vector search performance
+
+### 🔒 Security Features
+- **Rate Limiting**: 10 requests per minute per IP with automatic blocking
+- **Input Sanitization**: XSS prevention and prompt injection protection
+- **Request Caching**: Deduplication to prevent abuse
+- **Environment Validation**: Runtime checks for required configuration
+- **Error Handling**: Graceful degradation with user-friendly messages
+
+### 🗄️ Database Management
+- View all food items with pagination
+- Add new items with metadata
+- Bulk delete functionality
+- Search/filter capabilities
+
+---
+
+## 🍽️ Food Database
+
+The knowledge base contains **35+ diverse food items** across multiple categories:
+
+| Category | Examples |
+|----------|----------|
+| **Healthy Breakfast** | Spinach Mushroom Omelet, Greek Yogurt Parfait |
+| **Quick Meals** | 10-Minute Stir Fry, Avocado Toast |
+| **Vegetarian** | Vegetable Curry, Quinoa Salad |
+| **Grilling** | BBQ Techniques, Marinated Steaks |
+| **International** | Japanese, Mexican, Mediterranean cuisines |
+| **Desserts** | Healthy treats, Fruit-based options |
+
+Each item includes:
+- Name, Category, Origin
+- Detailed Description
+- Ingredients & Preparation
+- Nutritional Highlights
+- Dietary Classifications
+
+---
+
+## ⚡ Performance Metrics
+
+| Metric | Target | Actual |
+|--------|--------|--------|
+| **Vector Search Latency** | < 500ms | ~200-400ms |
+| **LLM Generation (8B)** | < 3s | ~1-2s |
+| **LLM Generation (70B)** | < 10s | ~3-6s |
+| **Total Response Time** | < 5s | ~2-4s |
+| **Success Rate** | > 95% | 98%+ |
+
+### 🧪 Advanced Test Suite Results
+
+Comparison between the deployed Web App and Python CLI (local system) using 15 queries across 5 categories.
+
+#### Test Results Summary
+
+| Metric | Web App (Cloud) | Python CLI (Local) |
+|--------|-----------------|---------------------|
+| **Avg Response Time** | ~1.3s | ~10.2s |
+| **Success Rate** | 15/15 (100%) | 15/15 (100%) |
+| **Avg Quality Score** | 3.0/5.0 | 4.4/5.0 |
+
+#### Key Findings
+
+1. **Speed**: The deployed web app is **~8x faster** than the local Python CLI (1.3s vs 10.2s average response time)
+
+2. **Reliability**: Both systems achieved **100% success rate** across all 15 test queries
+
+3. **Quality**: The local system scored higher on automated quality metrics (4.4/5.0 vs 3.0/5.0), likely due to different response formatting and length
+
+4. **Test Coverage**: All 15 queries succeeded across 5 categories:
+   - Semantic Similarity (3 queries)
+   - Multi-Criteria Search (3 queries)
+   - Nutritional Queries (3 queries)
+   - Cultural Exploration (3 queries)
+   - Cooking Method (3 queries)
+
+5. **Cost Efficiency**: Average API cost per query: ~$0.000065 (Groq LLM tokens)
+
+---
+
+## 🔧 Setup Instructions
+
+### Prerequisites
+- Node.js 18+
+- pnpm (recommended) or npm
+- Upstash account (Vector + Redis)
+- Groq API key
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/ragfood_web_app.git
+cd ragfood_web_app
+```
+
+### 2. Install Dependencies
+```bash
+pnpm install
+```
+
+### 3. Configure Environment Variables
+Create a `.env.local` file in the root directory:
+
+```env
 # Groq AI
 GROQ_API_KEY=your_groq_api_key
 
@@ -59,147 +260,108 @@ UPSTASH_REDIS_REST_TOKEN=your_redis_token
 # Compatibility aliases (optional)
 KV_REST_API_URL=${UPSTASH_REDIS_REST_URL}
 KV_REST_API_TOKEN=${UPSTASH_REDIS_REST_TOKEN}
-\`\`\`
+```
 
-## Getting Started
+### 4. Run Development Server
+```bash
+pnpm dev
+```
 
-### 1. Install Dependencies
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-\`\`\`bash
-npm install
-\`\`\`
+### 5. Build for Production
+```bash
+pnpm build
+pnpm start
+```
 
-### 2. Set Up Environment Variables
+---
 
-Create a `.env.local` file with your API keys (see above).
+## 📚 API Documentation
 
-### 3. Run Development Server
+### Upstash Vector Integration
 
-\`\`\`bash
-npm run dev
-\`\`\`
+The application uses Upstash Vector's REST API with built-in embeddings:
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+```typescript
+// Vector Search Query
+const response = await fetch(`${UPSTASH_VECTOR_REST_URL}/query-data`, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${UPSTASH_VECTOR_REST_TOKEN}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    data: "your search query",  // Auto-embedded by Upstash
+    topK: 3,                    // Number of results
+    includeMetadata: true,      // Include food item details
+  }),
+})
+```
 
-### 4. Build for Production
+### Groq LLM Integration
 
-\`\`\`bash
-npm run build
-npm start
-\`\`\`
+Using the `@ai-sdk/groq` package for LLM generation:
 
-## Project Structure
+```typescript
+import { createGroq } from "@ai-sdk/groq"
+import { generateText } from "ai"
 
-\`\`\`
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
+
+const { text } = await generateText({
+  model: groq("llama-3.1-8b-instant"),  // or "llama-3.3-70b-versatile"
+  system: "You are a food expert assistant...",
+  prompt: `Context: ${retrievedDocs}\n\nQuestion: ${userQuery}`,
+  temperature: 0.7,
+  maxTokens: 1024,
+})
+```
+
+### Available Models
+
+| Model ID | Description | Use Case |
+|----------|-------------|----------|
+| `llama-3.1-8b-instant` | Fast responses, good quality | Quick queries |
+| `llama-3.1-70b-versatile` | Higher quality, more detailed | Complex questions |
+
+---
+
+## 📁 Project Structure
+
+```
+ragfood_web_app/
 ├── app/
-│   ├── api/
-│   │   ├── analytics/       # Analytics API endpoints
-│   │   ├── chat/            # Main RAG query endpoint
-│   │   └── food-items/      # Vector DB management
-│   ├── analytics/           # Analytics dashboard page
-│   ├── layout.tsx           # Root layout with metadata
-│   └── page.tsx             # Main chat interface page
+│   ├── page.tsx              # Main chat page
+│   ├── layout.tsx            # Root layout
+│   ├── analytics/            # Analytics dashboard
+│   ├── admin/food-items/     # Database management
+│   └── api/                  # API routes
 ├── components/
-│   ├── ui/                  # shadcn/ui components
-│   ├── chat-interface.tsx   # Main chat component
-│   ├── chat-message.tsx     # Message display
-│   ├── model-selector.tsx   # LLM model switcher
-│   └── search-results.tsx   # Vector search results
+│   ├── chat-interface.tsx    # Main chat component
+│   ├── search-results.tsx    # Source cards display
+│   ├── model-selector.tsx    # Model dropdown
+│   └── ui/                   # shadcn components
 ├── lib/
-│   ├── analytics.ts         # Analytics tracking
-│   ├── env-validator.ts     # Environment validation
-│   ├── food-rag-actions.ts  # Core RAG logic
-│   ├── input-validator.ts   # Input sanitization
-│   ├── rate-limiter.ts      # Rate limiting
-│   └── request-cache.ts     # Response caching
-└── types/
-    └── index.ts             # TypeScript types
-\`\`\`
+│   ├── food-rag-actions.ts   # Core RAG logic
+│   ├── analytics.ts          # Analytics tracking
+│   ├── env-validator.ts      # Environment validation
+│   ├── input-validator.ts    # Input sanitization
+│   ├── rate-limiter.ts       # Rate limiting
+│   ├── request-cache.ts      # Response caching
+│   └── models.ts             # Model configuration
+├── docs/                     # Project documentation
+└── types/                    # TypeScript definitions
+```
 
-## Security Features
+---
 
-- **Rate Limiting**: 10 requests per minute per IP with automatic blocking
-- **Input Sanitization**: XSS prevention and prompt injection protection
-- **Request Caching**: Deduplication to prevent abuse
-- **Environment Validation**: Runtime checks for required configuration
-- **Error Handling**: Graceful degradation with user-friendly messages
+## 🔗 Links
 
-## Performance Optimizations
+- **Live Demo**: [https://v0-ragfoodwebapp-uw.vercel.app/]
 
-- **Response Caching**: 1-hour TTL reduces API calls by ~60-80%
-- **Memory Management**: Auto-trim chat history to last 50 messages
-- **Lazy Loading**: Search results and components load on demand
-- **Request Deduplication**: Identical queries share cached results
-- **Abort Controllers**: Proper cleanup of in-flight requests
+---
 
-## Analytics
-
-Access the analytics dashboard at `/analytics` to view:
-
-- Total queries and success rate
-- Average response latency
-- Model usage distribution
-- Error breakdown by type
-- Daily query trends
-- Vector search performance
-
-## API Endpoints
-
-### POST `/api/chat`
-
-Main RAG query endpoint.
-
-**Request:**
-\`\`\`json
-{
-  "query": "What can I cook with chicken?",
-  "modelId": "llama-3.1-70b-versatile"
-}
-\`\`\`
-
-**Response:**
-\`\`\`json
-{
-  "success": true,
-  "text": "Here are some chicken recipes...",
-  "searchResults": [...],
-  "metrics": {
-    "searchDuration": 150,
-    "generationDuration": 2340,
-    "totalDuration": 2490
-  }
-}
-\`\`\`
-
-## Deployment
-
-### Deploy to Vercel (Recommended)
-
-1. Click the "Publish" button in v0
-2. Connect your Vercel account
-3. Add the required integrations:
-   - Groq (for LLM)
-   - Upstash Vector (for search)
-   - Upstash Redis (for caching)
-4. Deploy automatically
-
-### Manual Deployment
-
-\`\`\`bash
-npm run build
-npm start
-\`\`\`
-
-Ensure all environment variables are set in your hosting platform.
-
-## License
-
-MIT
-
-## Contributing
-
-Contributions welcome! Please open an issue or PR.
-
-## Support
-
-For issues or questions, please open an issue on GitHub.
+<p align="center">
+  Built with ❤️ using Next.js, Upstash, and Groq
+</p>
