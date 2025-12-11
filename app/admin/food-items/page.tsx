@@ -1,23 +1,24 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { 
+import {
   ArrowLeft,
   Database,
   Plus,
   Trash2,
   RefreshCw,
   Search,
-  ChevronLeft,
   ChevronRight,
   UtensilsCrossed,
   X,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -58,6 +59,7 @@ export default function FoodItemsPage() {
   const [formData, setFormData] = useState<FoodFormData>(EMPTY_FORM)
   const [submitting, setSubmitting] = useState(false)
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  const [isSearching, setIsSearching] = useState(false)
 
   const fetchItems = useCallback(async (cursor?: string) => {
     setLoading(true)
@@ -83,6 +85,48 @@ export default function FoodItemsPage() {
     }
   }, [])
 
+  const searchItems = useCallback(
+    async (query: string) => {
+      if (!query.trim()) {
+        setIsSearching(false)
+        fetchItems()
+        return
+      }
+
+      setLoading(true)
+      setError(null)
+      setIsSearching(true)
+      try {
+        const params = new URLSearchParams()
+        params.set("search", query)
+        params.set("limit", "100")
+
+        const response = await fetch(`/api/food-items?${params}`)
+        const json = await response.json()
+
+        if (json.success) {
+          setItems(json.data.items)
+          setNextCursor(null)
+        } else {
+          setError(json.error || "Failed to search items")
+        }
+      } catch (err) {
+        setError("Failed to search")
+      } finally {
+        setLoading(false)
+      }
+    },
+    [fetchItems],
+  )
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchItems(searchTerm)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchTerm, searchItems])
+
   useEffect(() => {
     fetchItems()
   }, [fetchItems])
@@ -95,10 +139,10 @@ export default function FoodItemsPage() {
   }, [notification])
 
   const handleSelectAll = () => {
-    if (selectedItems.size === filteredItems.length) {
+    if (selectedItems.size === items.length) {
       setSelectedItems(new Set())
     } else {
-      setSelectedItems(new Set(filteredItems.map(item => item.id)))
+      setSelectedItems(new Set(items.map((item) => item.id)))
     }
   }
 
@@ -114,7 +158,7 @@ export default function FoodItemsPage() {
 
   const handleDelete = async () => {
     if (selectedItems.size === 0) return
-    
+
     if (!confirm(`Are you sure you want to delete ${selectedItems.size} item(s)?`)) {
       return
     }
@@ -130,7 +174,11 @@ export default function FoodItemsPage() {
       if (json.success) {
         setNotification({ type: "success", message: `Deleted ${selectedItems.size} item(s)` })
         setSelectedItems(new Set())
-        fetchItems()
+        if (isSearching && searchTerm) {
+          searchItems(searchTerm)
+        } else {
+          fetchItems()
+        }
       } else {
         setNotification({ type: "error", message: json.error || "Failed to delete" })
       }
@@ -155,6 +203,8 @@ export default function FoodItemsPage() {
         setNotification({ type: "success", message: `Added "${formData.name}"` })
         setShowAddModal(false)
         setFormData(EMPTY_FORM)
+        setSearchTerm("")
+        setIsSearching(false)
         fetchItems()
       } else {
         setNotification({ type: "error", message: json.error || "Failed to add item" })
@@ -166,34 +216,23 @@ export default function FoodItemsPage() {
     }
   }
 
-  const filteredItems = items.filter(item => {
-    if (!searchTerm) return true
-    const name = item.metadata?.name?.toLowerCase() || ""
-    const category = item.metadata?.category?.toLowerCase() || ""
-    const origin = item.metadata?.origin?.toLowerCase() || ""
-    const search = searchTerm.toLowerCase()
-    return name.includes(search) || category.includes(search) || origin.includes(search)
-  })
+  const filteredItems = items
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      {/* Notification Toast */}
       {notification && (
-        <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg animate-in slide-in-from-top-2 ${
-          notification.type === "success" 
-            ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-600" 
-            : "bg-destructive/10 border border-destructive/20 text-destructive"
-        }`}>
-          {notification.type === "success" ? (
-            <CheckCircle2 className="w-4 h-4" />
-          ) : (
-            <AlertCircle className="w-4 h-4" />
-          )}
+        <div
+          className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg animate-in slide-in-from-top-2 ${
+            notification.type === "success"
+              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-600"
+              : "bg-destructive/10 border border-destructive/20 text-destructive"
+          }`}
+        >
+          {notification.type === "success" ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           <span className="text-sm font-medium">{notification.message}</span>
         </div>
       )}
 
-      {/* Add Item Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
           <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -285,7 +324,6 @@ export default function FoodItemsPage() {
       )}
 
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <Link href="/analytics">
@@ -299,13 +337,20 @@ export default function FoodItemsPage() {
                 <Database className="w-6 h-6 text-primary" />
                 Food Items Database
               </h1>
-              <p className="text-sm text-muted-foreground">
-                Manage your RAG knowledge base
-              </p>
+              <p className="text-sm text-muted-foreground">Manage your RAG knowledge base</p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => fetchItems()} className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearchTerm("")
+                setIsSearching(false)
+                fetchItems()
+              }}
+              className="gap-2"
+            >
               <RefreshCw className="w-4 h-4" />
               Refresh
             </Button>
@@ -316,7 +361,6 @@ export default function FoodItemsPage() {
           </div>
         </div>
 
-        {/* Search & Actions Bar */}
         <Card className="mb-6">
           <CardContent className="py-4">
             <div className="flex flex-col sm:flex-row gap-4 items-center">
@@ -326,49 +370,46 @@ export default function FoodItemsPage() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by name, category, or origin..."
+                  placeholder="Search across all items in database..."
                   className="w-full pl-10 pr-4 py-2 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
+                {loading && searchTerm && (
+                  <RefreshCw className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground animate-spin" />
+                )}
               </div>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSelectAll}
-                  disabled={filteredItems.length === 0}
-                >
-                  {selectedItems.size === filteredItems.length && filteredItems.length > 0 
-                    ? "Deselect All" 
+                <Button variant="outline" size="sm" onClick={handleSelectAll} disabled={filteredItems.length === 0}>
+                  {selectedItems.size === filteredItems.length && filteredItems.length > 0
+                    ? "Deselect All"
                     : "Select All"}
                 </Button>
                 {selectedItems.size > 0 && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="gap-2"
-                  >
+                  <Button variant="destructive" size="sm" onClick={handleDelete} className="gap-2">
                     <Trash2 className="w-4 h-4" />
                     Delete ({selectedItems.size})
                   </Button>
                 )}
               </div>
             </div>
+            {isSearching && searchTerm && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Searching across entire database for "{searchTerm}"...
+              </p>
+            )}
           </CardContent>
         </Card>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Card>
             <CardContent className="py-4">
               <p className="text-2xl font-bold">{items.length}</p>
-              <p className="text-sm text-muted-foreground">Total Items</p>
+              <p className="text-sm text-muted-foreground">{isSearching ? "Search Results" : "Total Items"}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="py-4">
               <p className="text-2xl font-bold">{filteredItems.length}</p>
-              <p className="text-sm text-muted-foreground">Filtered</p>
+              <p className="text-sm text-muted-foreground">Displayed</p>
             </CardContent>
           </Card>
           <Card>
@@ -380,19 +421,20 @@ export default function FoodItemsPage() {
           <Card>
             <CardContent className="py-4">
               <p className="text-2xl font-bold">
-                {new Set(items.map(i => i.metadata?.category).filter(Boolean)).size}
+                {new Set(items.map((i) => i.metadata?.category).filter(Boolean)).size}
               </p>
               <p className="text-sm text-muted-foreground">Categories</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Items List */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Knowledge Base Items</CardTitle>
             <CardDescription>
-              Click to select items for bulk actions
+              {isSearching
+                ? `Showing results from semantic search across all items`
+                : "Click to select items for bulk actions"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -404,7 +446,9 @@ export default function FoodItemsPage() {
               <div className="text-center py-12">
                 <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
                 <p className="text-destructive">{error}</p>
-                <Button onClick={() => fetchItems()} className="mt-4">Try Again</Button>
+                <Button onClick={() => fetchItems()} className="mt-4">
+                  Try Again
+                </Button>
               </div>
             ) : filteredItems.length === 0 ? (
               <div className="text-center py-12">
@@ -431,14 +475,12 @@ export default function FoodItemsPage() {
                         : "bg-secondary/30 border-transparent hover:bg-secondary/50"
                     }`}
                   >
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                      selectedItems.has(item.id)
-                        ? "bg-primary border-primary"
-                        : "border-muted-foreground/30"
-                    }`}>
-                      {selectedItems.has(item.id) && (
-                        <CheckCircle2 className="w-3 h-3 text-primary-foreground" />
-                      )}
+                    <div
+                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                        selectedItems.has(item.id) ? "bg-primary border-primary" : "border-muted-foreground/30"
+                      }`}
+                    >
+                      {selectedItems.has(item.id) && <CheckCircle2 className="w-3 h-3 text-primary-foreground" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{item.metadata?.name || item.id}</p>
@@ -447,26 +489,17 @@ export default function FoodItemsPage() {
                       </p>
                     </div>
                     <div className="flex gap-2 shrink-0">
-                      {item.metadata?.category && (
-                        <Badge variant="secondary">{item.metadata.category}</Badge>
-                      )}
-                      {item.metadata?.origin && (
-                        <Badge variant="outline">{item.metadata.origin}</Badge>
-                      )}
+                      {item.metadata?.category && <Badge variant="secondary">{item.metadata.category}</Badge>}
+                      {item.metadata?.origin && <Badge variant="outline">{item.metadata.origin}</Badge>}
                     </div>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Pagination */}
-            {nextCursor && (
+            {!isSearching && nextCursor && (
               <div className="flex justify-center mt-6">
-                <Button
-                  variant="outline"
-                  onClick={() => fetchItems(nextCursor)}
-                  className="gap-2"
-                >
+                <Button variant="outline" onClick={() => fetchItems(nextCursor)} className="gap-2">
                   Load More
                   <ChevronRight className="w-4 h-4" />
                 </Button>
@@ -475,7 +508,6 @@ export default function FoodItemsPage() {
           </CardContent>
         </Card>
 
-        {/* Footer */}
         <div className="mt-8 text-center text-sm text-muted-foreground">
           <p>Data stored in Upstash Vector Database</p>
         </div>

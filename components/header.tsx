@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Utensils, Menu, X, Info, Github, Database, Cpu, Sparkles, BarChart3 } from "lucide-react"
+import { Utensils, Menu, X, Github, Database, Cpu, Sparkles, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -11,7 +11,7 @@ export function Header() {
   return (
     <header className="relative overflow-hidden border-b border-border bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmOGE1MDAiIGZpbGwtb3BhY2l0eT0iMC4wNCI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-      
+
       <div className="relative max-w-6xl mx-auto px-4 py-4 sm:py-5">
         <div className="flex items-center justify-between">
           {/* Logo & Title */}
@@ -29,19 +29,23 @@ export function Header() {
                   AI Demo
                 </span>
               </div>
-              <p className="text-muted-foreground text-xs sm:text-sm">
-                Retrieval-Augmented Generation Demo
-              </p>
+              <p className="text-muted-foreground text-xs sm:text-sm">Retrieval-Augmented Generation Demo</p>
             </div>
           </div>
 
           {/* Tech Stack Badges - Desktop */}
           <div className="hidden lg:flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 border border-border/50" title="Vector Search powered by Upstash">
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 border border-border/50"
+              title="Vector Search powered by Upstash"
+            >
               <Database className="w-3.5 h-3.5 text-emerald-500" />
               <span className="text-xs text-muted-foreground">Vector DB</span>
             </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 border border-border/50" title="LLM powered by Groq">
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary/50 border border-border/50"
+              title="LLM powered by Groq"
+            >
               <Cpu className="w-3.5 h-3.5 text-purple-500" />
               <span className="text-xs text-muted-foreground">Llama 3.1</span>
             </div>
@@ -56,7 +60,7 @@ export function Header() {
               </Link>
             </Button>
             <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground" asChild>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+              <a href="https://github.com/mrambiguous8/v0-ragfoodwebapp" target="_blank" rel="noopener noreferrer">
                 <Github className="w-4 h-4" />
                 Source
               </a>
@@ -72,11 +76,7 @@ export function Header() {
             aria-expanded={isMobileMenuOpen}
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           >
-            {isMobileMenuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
         </div>
       </div>
@@ -96,27 +96,16 @@ export function Header() {
                 <span className="text-muted-foreground">Llama 3.1</span>
               </div>
             </div>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-3 h-12 rounded-lg text-foreground" 
-              asChild
-            >
-              <Link 
-                href="/analytics"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
+            <Button variant="ghost" className="w-full justify-start gap-3 h-12 rounded-lg text-foreground" asChild>
+              <Link href="/analytics" onClick={() => setIsMobileMenuOpen(false)}>
                 <BarChart3 className="w-5 h-5 text-primary" />
                 Analytics Dashboard
               </Link>
             </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-3 h-12 rounded-lg text-foreground" 
-              asChild
-            >
-              <a 
-                href="https://github.com" 
-                target="_blank" 
+            <Button variant="ghost" className="w-full justify-start gap-3 h-12 rounded-lg text-foreground" asChild>
+              <a
+                href="https://github.com/mrambiguous8/v0-ragfoodwebapp"
+                target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
